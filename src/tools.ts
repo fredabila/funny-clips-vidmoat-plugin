@@ -113,7 +113,8 @@ export const TOOLS: ToolDef[] = [
     title: "Search reaction clips",
     description:
       "Searches for short reaction/meme-style clips (facepalm, side-eye, mind blown, crowd cheering, crying, walking away...) " +
-      "by free-text query and/or reaction type. Returns candidates with id, title, preview image URL, size, whether it has audio, " +
+      "by free-text query and/or reaction type. The library source is a hand-picked pack of licensed stock reactions, each watched and " +
+      "trimmed to its punch moment (trim). Returns candidates with id, title, preview image URL, size, whether it has audio, " +
       "licence and attribution. Show previews to the user when they want to choose; pass the chosen id to get_reaction_clip to add it to the project.",
   },
   {
@@ -122,7 +123,8 @@ export const TOOLS: ToolDef[] = [
     description:
       "Adds one reaction clip to the user's media library and returns its URL. Pass a clipId from search_reaction_clips/find_funny_moments, " +
       "or a query/reaction to take the best match. Typical use: a 1.5 to 3 second cut-away placed at a moment's insertAt, " +
-      "with the speaker's audio ducked or paused. GIPHY clips are silent, so pair them with get_sound_effect. " +
+      "with the speaker's audio ducked or paused. If the result has trim, set the clip's in/out to trim.start/trim.end: that is the punch moment. " +
+      "GIPHY clips are silent, so pair them with get_sound_effect. " +
       "The result carries the attribution to credit.",
     producesMedia: "video",
   },

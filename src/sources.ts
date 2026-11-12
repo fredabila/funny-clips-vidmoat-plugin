@@ -8,7 +8,8 @@
  * - pexels:  free-licence stock video. Needs PEXELS_API_KEY.
  */
 import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { getReaction, type ReactionId } from "./reactions.js";
 
 export type SourceName = "library" | "giphy" | "pexels";
@@ -16,6 +17,10 @@ export type SourceName = "library" | "giphy" | "pexels";
 export interface Clip {
   /** "<source>:<id>", pass this to get_reaction_clip. */
   id: string;
+  /** Reaction types this clip is curated for (library clips only). */
+  reactions?: ReactionId[];
+  /** The best window in the source, in seconds: set the clip's in/out to this. */
+  trim?: { start: number; end: number } | null;
   source: SourceName;
   title: string;
   previewUrl: string | null;
@@ -52,6 +57,10 @@ async function getJson(url: string, headers: Record<string, string> = {}): Promi
 
 interface LibraryEntry {
   id: string;
+  /** Best 1.5-4s window in the source. */
+  inSeconds?: number;
+  outSeconds?: number;
+  sourceUrl?: string;
   title: string;
   url: string;
   previewUrl?: string;
@@ -67,11 +76,20 @@ interface LibraryEntry {
 
 let libraryCache: LibraryEntry[] | null = null;
 
+/** The curated pack shipped with the plugin. */
+const BUNDLED = resolve(dirname(fileURLToPath(import.meta.url)), "../assets/clips.json");
+
+function readCatalog(path: string): LibraryEntry[] {
+  return existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")).clips ?? []) : [];
+}
+
+/** Your own clips (LIBRARY_PATH, default ./library.json) first, then the bundled pack. */
 export function loadLibrary(): LibraryEntry[] {
   if (libraryCache) return libraryCache;
-  const path = resolve(process.env.LIBRARY_PATH ?? "library.json");
-  libraryCache = existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")).clips ?? []) : [];
-  return libraryCache!;
+  const own = readCatalog(resolve(process.env.LIBRARY_PATH ?? "library.json"));
+  const ids = new Set(own.map((e) => e.id));
+  libraryCache = [...own, ...readCatalog(BUNDLED).filter((e) => !ids.has(e.id))];
+  return libraryCache;
 }
 
 /** For tests. */
@@ -83,9 +101,11 @@ function libraryToClip(e: LibraryEntry): ResolvedClip {
   return {
     id: `library:${e.id}`,
     source: "library",
+    reactions: e.reactions ?? [],
+    trim: typeof e.inSeconds === "number" && typeof e.outSeconds === "number" ? { start: e.inSeconds, end: e.outSeconds } : null,
     title: e.title,
     previewUrl: e.previewUrl ?? null,
-    pageUrl: null,
+    pageUrl: e.sourceUrl ?? null,
     width: e.width ?? null,
     height: e.height ?? null,
     durationSeconds: e.durationSeconds ?? null,
@@ -102,7 +122,13 @@ function searchLibrary(o: SearchOptions): Clip[] {
     .map((e) => {
       const hay = [e.title, ...(e.tags ?? [])].join(" ").toLowerCase();
       let score = words.filter((wd) => hay.includes(wd)).length / Math.max(1, words.length);
-      if (o.reaction && e.reactions?.includes(o.reaction)) score += 1;
+      // The first listed reaction is what the clip was picked for; the rest are "also fits".
+      if (o.reaction && e.reactions?.[0] === o.reaction) score += 1.5;
+      else if (o.reaction && e.reactions?.includes(o.reaction)) score += 0.75;
+      if (score > 0 && o.orientation && e.width && e.height) {
+        const shape = e.width > e.height * 1.1 ? "landscape" : e.height > e.width * 1.1 ? "portrait" : "square";
+        if (shape === o.orientation) score += 0.25;
+      }
       return { e, score };
     })
     .filter((x) => x.score > 0)

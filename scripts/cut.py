@@ -18,7 +18,7 @@ UA = "funny-clips-pack-builder/0.1 (public-domain clip curation; ffmpeg)"
 
 
 CACHE = os.environ.get("CLIP_CACHE", os.path.join(ROOT, ".clip-cache"))
-PREFERRED = ["720p.vp9.webm", "720p.webm", "1080p.vp9.webm", "480p.vp9.webm", "480p.webm"]
+PREFERRED = ["720p.vp9.webm", "720p.webm", "1080p.vp9.webm", "480p.vp9.webm", "480p.webm", "360p.vp9.webm", "360p.mpeg4.mov", "360p.webm"]
 
 
 def commons(**params):
@@ -46,9 +46,8 @@ def local_source(p):
     derivs = {d.get("transcodekey"): d["src"] for d in vi.get("derivatives", [])}
     src = next((derivs[k] for k in PREFERRED if k in derivs), None)
     if not src:
-        if vi["size"] > 600_000_000:
-            raise RuntimeError(f"No transcode for {title} and the original is {vi['size'] // 1_000_000} MB")
-        src = vi["url"].split("?")[0]
+        # Wikimedia throttles large original files hard; only use transcodes.
+        raise RuntimeError(f"No 360p+ transcode for {title}; pick another copy of the film")
     print("  downloading", title, "->", src.rsplit(".", 3)[-3:], flush=True)
     hdr = path + ".headers"
     for i in range(10):

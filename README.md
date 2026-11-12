@@ -63,16 +63,21 @@ Set `PUBLIC_BASE_URL` to the public URL. The sound effects and text cards are se
 
 This matters most if you publish the plugin. Your users will put these clips in videos they monetise.
 
-- **Your library (`library.json`)** is always on, and it is ranked first. Copy `library.example.json`, list clips you own or that are CC0, and tag each one with `reactions`. A small curated pack (20–50 clips covering the 16 reaction types) is the most reliable way to make the plugin both good and safe.
-- **GIPHY** (`GIPHY_API_KEY`) has the deepest supply of reaction clips. The clips are silent MP4s. A lot of GIPHY content is cut from films and TV owned by someone else. The tool results label this and carry attribution, but a production key and GIPHY's API terms are your responsibility. Read them before going public.
-- **Pexels** (`PEXELS_API_KEY`) is free-licence stock video. It is safe to use, but it is better for "money flying" or "crowd cheering" than for meme faces.
+- **The bundled pack (`assets/clips/`)** is served by this plugin from `/media/clips/`. It contains hand-picked reaction moments from **public-domain silent comedies** on Wikimedia Commons: Buster Keaton, Harold Lloyd, Charlie Chaplin and others. Each clip was watched, trimmed to its 1.5–4 s punch moment and tagged by reaction type. Public domain means anyone can use the clips commercially. The clips are silent, so pair them with `get_sound_effect`. `assets/clips.json` lists the source film and Commons page for every clip, and `scripts/cut.py` rebuilds the pack from `scripts/picks.json`.
+- **Your own library (`library.json`)** is listed ahead of the pack. Use it for clips you shot or own.
+- **GIPHY** (`GIPHY_API_KEY`, optional) has the deepest supply of modern reaction clips. A lot of GIPHY content is cut from films, TV and creators' videos owned by someone else. The tool results label this and carry attribution, but checking GIPHY's API terms is your responsibility. Read them before going public.
+- **Pexels** (`PEXELS_API_KEY`, optional) is free-licence stock video.
 - **Sound effects** are synthesised in `src/sfx.ts`, so there is no recording to license. **Cards** use the Anton font (SIL OFL, `assets/fonts/OFL.txt`).
+
+Clips ripped from TikTok, YouTube, films or TV are deliberately not included. They belong to their creators, and shipping them to users would expose those users to copyright claims.
 
 ## Layout
 
 ```
 src/reactions.ts   16 reaction types, their trigger phrases, queries, SFX/card pairings; pacing logic
-src/sources.ts     library / GIPHY / Pexels search and clip resolution
+src/sources.ts     library + bundled pack / GIPHY / Pexels search and clip resolution
+assets/clips/      the bundled public-domain reaction clips (mp4 + jpg thumbnail)
+scripts/cut.py     cuts the pack from scripts/picks.json
 src/sfx.ts         sound-effect synthesiser -> WAV
 src/card.ts        SVG text cards -> PNG (resvg)
 src/tools.ts       MCP tool schemas, descriptions and handlers

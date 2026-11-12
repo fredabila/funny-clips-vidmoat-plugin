@@ -10,6 +10,9 @@
  * return and copies them into the user's library.
  */
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { timingSafeEqual } from "node:crypto";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -79,6 +82,7 @@ function send(res: ServerResponse, status: number, body: string | Buffer, type =
   res.end(body);
 }
 
+const CLIPS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../assets/clips");
 const IMMUTABLE = { "cache-control": "public, max-age=31536000, immutable" };
 const cardCache = new Map<string, Buffer>();
 
@@ -109,6 +113,16 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
   }
 
   if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, '{"error":"method not allowed"}');
+
+  const clip = url.pathname.match(/^\/media\/clips\/([a-z0-9-]+)\.(mp4|jpg)$/);
+  if (clip) {
+    try {
+      const file = await readFile(resolve(CLIPS_DIR, `${clip[1]}.${clip[2]}`));
+      return send(res, 200, file, clip[2] === "mp4" ? "video/mp4" : "image/jpeg", IMMUTABLE);
+    } catch {
+      return send(res, 404, '{"error":"unknown clip"}');
+    }
+  }
 
   const sfx = url.pathname.match(/^\/media\/sfx\/([a-z_]+)\.wav$/);
   if (sfx) {

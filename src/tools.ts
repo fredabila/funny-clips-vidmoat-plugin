@@ -168,6 +168,15 @@ export interface CallContext {
 
 export class ToolError extends Error {}
 
+/** Bundled clips are stored with paths relative to this server's /media/. */
+function absolute(url: string | null | undefined, ctx: CallContext) {
+  return url && !/^https?:\/\//.test(url) ? `${ctx.baseUrl}/media/${url.replace(/^\//, "")}` : (url ?? null);
+}
+
+function withAbsoluteUrls<T extends { previewUrl?: string | null }>(clips: T[], ctx: CallContext): T[] {
+  return clips.map((c) => ({ ...c, previewUrl: absolute(c.previewUrl, ctx) }));
+}
+
 export async function callTool(name: string, rawArgs: unknown, ctx: CallContext): Promise<unknown> {
   const schema = schemas[name as keyof typeof schemas];
   if (!schema) throw new ToolError(`Unknown tool "${name}"`);
@@ -178,11 +187,11 @@ export async function callTool(name: string, rawArgs: unknown, ctx: CallContext)
   const args = parsed.data as any;
   switch (name) {
     case "find_funny_moments":
-      return findFunnyMoments(args);
+      return findFunnyMoments(args, ctx);
     case "search_reaction_clips":
-      return searchReactionClips(args);
+      return searchReactionClips(args, ctx);
     case "get_reaction_clip":
-      return getReactionClip(args);
+      return getReactionClip(args, ctx);
     case "get_sound_effect":
       return getSoundEffect(args, ctx);
     case "make_text_card":
@@ -190,7 +199,7 @@ export async function callTool(name: string, rawArgs: unknown, ctx: CallContext)
   }
 }
 
-async function findFunnyMoments(a: Args<"find_funny_moments">) {
+async function findFunnyMoments(a: Args<"find_funny_moments">, ctx: CallContext) {
   const segments = a.segments?.length ? a.segments : textToSegments(a.text!);
   const moments = findMoments(segments, { density: a.density, only: a.only, exclude: a.exclude, max: a.max });
   const errors = new Set<string>();
@@ -199,7 +208,7 @@ async function findFunnyMoments(a: Args<"find_funny_moments">) {
       if (!a.withClips) return m;
       const res = await searchForReaction(m.reaction, { limit: 3, rating: a.rating, orientation: a.orientation });
       res.errors.forEach((e) => errors.add(e));
-      return { ...m, query: res.query, clips: res.clips };
+      return { ...m, query: res.query, clips: withAbsoluteUrls(res.clips, ctx) };
     }),
   );
   return {
@@ -214,20 +223,20 @@ async function findFunnyMoments(a: Args<"find_funny_moments">) {
   };
 }
 
-async function searchReactionClips(a: Args<"search_reaction_clips">) {
+async function searchReactionClips(a: Args<"search_reaction_clips">, ctx: CallContext) {
   const base = { limit: a.limit, rating: a.rating, orientation: a.orientation };
   const res = a.query
     ? { query: a.query, ...(await searchClips({ ...base, query: a.query, reaction: a.reaction }, a.sources as SourceName[] | undefined)) }
     : await searchForReaction(a.reaction!, base, a.sources as SourceName[] | undefined);
   return {
     query: res.query,
-    clips: res.clips,
+    clips: withAbsoluteUrls(res.clips, ctx),
     sources: a.sources ?? enabledSources(),
     ...(res.errors.length ? { sourceErrors: res.errors } : {}),
   };
 }
 
-async function getReactionClip(a: Args<"get_reaction_clip">) {
+async function getReactionClip(a: Args<"get_reaction_clip">, ctx: CallContext) {
   let id = a.clipId;
   if (!id) {
     const base = { limit: 1, rating: a.rating, orientation: a.orientation };
@@ -241,7 +250,7 @@ async function getReactionClip(a: Args<"get_reaction_clip">) {
   }
   const clip = await resolveClip(id);
   const { mediaUrl, ...meta } = clip;
-  return { url: mediaUrl, ...meta };
+  return { url: absolute(mediaUrl, ctx), ...meta, previewUrl: absolute(meta.previewUrl, ctx) };
 }
 
 function getSoundEffect(a: Args<"get_sound_effect">, ctx: CallContext) {

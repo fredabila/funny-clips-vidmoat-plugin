@@ -3,3 +3,4 @@ dist/
 .env
 library.json
 .clip-cache/
+__pycache__/

@@ -8,11 +8,55 @@ assets/clips/<id>.mp4 + <id>.jpg. Then writes assets/clips.json for the plugin.
     python3 -I scripts/cut.py            # cut everything missing
     python3 -I scripts/cut.py --force    # recut everything
 """
-import json, os, subprocess, sys
+import hashlib, json, os, subprocess, sys, time, urllib.parse, urllib.request, urllib.error
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "assets", "clips")
 PICKS = os.path.join(ROOT, "scripts", "picks.json")
+# Wikimedia refuses generic clients; identify the tool.
+UA = "funny-clips-pack-builder/0.1 (public-domain clip curation; ffmpeg)"
+
+
+CACHE = os.environ.get("CLIP_CACHE", os.path.join(ROOT, ".clip-cache"))
+PREFERRED = ["720p.vp9.webm", "720p.webm", "1080p.vp9.webm", "480p.vp9.webm", "480p.webm"]
+
+
+def commons(**params):
+    params["format"] = "json"
+    url = "https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode(params)
+    for i in range(8):
+        try:
+            return json.load(urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=60))
+        except urllib.error.HTTPError as e:
+            if e.code != 429:
+                raise
+            time.sleep(15 * (i + 1))
+    raise RuntimeError("Commons API still rate limited")
+
+
+def local_source(p):
+    """Download (once) a 720p transcode of the film: Wikimedia asks tools not to pull multi-GB originals."""
+    os.makedirs(CACHE, exist_ok=True)
+    title = "File:" + urllib.parse.unquote(p["filePage"].split("/wiki/File:", 1)[1]).replace("_", " ")
+    path = os.path.join(CACHE, hashlib.sha1(title.encode()).hexdigest()[:16] + ".video")
+    if os.path.exists(path):
+        return path
+    pages = commons(action="query", titles=title, prop="videoinfo", viprop="derivatives|url|size")["query"]["pages"]
+    vi = next(iter(pages.values()))["videoinfo"][0]
+    derivs = {d.get("transcodekey"): d["src"] for d in vi.get("derivatives", [])}
+    src = next((derivs[k] for k in PREFERRED if k in derivs), None)
+    if not src:
+        if vi["size"] > 600_000_000:
+            raise RuntimeError(f"No transcode for {title} and the original is {vi['size'] // 1_000_000} MB")
+        src = vi["url"].split("?")[0]
+    print("  downloading", title, "->", src.rsplit(".", 3)[-3:], flush=True)
+    for i in range(8):
+        r = subprocess.run(["curl", "-sSfL", "-A", UA, "-o", path + ".part", src])
+        if r.returncode == 0:
+            os.rename(path + ".part", path)
+            return path
+        time.sleep(30 * (i + 1))
+    raise RuntimeError(f"Could not download {src}")
 
 
 def cut(p, force):
@@ -31,7 +75,7 @@ def cut(p, force):
     if p.get("speed"):
         vf = f"setpts=PTS/{p['speed']}," + vf
     subprocess.run(
-        ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(pre), "-i", p["sourceUrl"],
+        ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(pre), "-i", local_source(p),
          "-ss", str(start - pre), "-t", str(end - start), "-an", "-vf", vf,
          "-c:v", "libx264", "-preset", "slow", "-crf", "23", "-movflags", "+faststart", mp4],
         check=True)
@@ -39,6 +83,14 @@ def cut(p, force):
     subprocess.run(
         ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(mid), "-i", mp4, "-frames:v", "1",
          "-vf", "scale=480:-2", "-q:v", "4", jpg], check=True)
+
+
+def license_for(p):
+    import re
+    years = re.findall(r"\b(18\d\d|19[0-2]\d)\b", p["film"] + " " + p["filePage"])
+    year = years[0] if years else "before 1930"
+    return (f"Public domain in the US (published {year}). Copyright can still apply in some other countries "
+            "(EU/UK count from the director's death); restored versions of this film can trigger Content ID claims, which can be disputed.")
 
 
 def probe(path):
@@ -71,7 +123,7 @@ def main():
             "width": w,
             "height": h,
             "hasAudio": False,
-            "license": p["license"],
+            "license": license_for(p),
             "attribution": p["film"],
             "why": p.get("why"),
         })

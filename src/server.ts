@@ -26,7 +26,7 @@ const VERSION = "0.1.0";
 
 const INSTRUCTIONS =
   "Funny Clips turns a talking video into a meme edit: it finds the lines in a transcript where a relatable reaction clip " +
-  "lands as a joke, finds the clips (your own library, GIPHY reaction GIFs, Pexels stock), and makes the sound effects and " +
+  "lands as a joke, finds the clips (a bundled pack of public-domain silent-comedy reactions, your own library, optional GIPHY and Pexels), and makes the sound effects and " +
   "text cards that go with them. Typical flow: transcribe the video, call find_funny_moments with the segments, then for each " +
   "moment you keep call get_reaction_clip / get_sound_effect / make_text_card and place the result at insertAt as a short cut-away.";
 

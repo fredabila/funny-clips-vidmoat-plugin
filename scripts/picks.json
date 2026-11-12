@@ -172,7 +172,7 @@
     "filePage": "https://commons.wikimedia.org/wiki/File:Cops_(Edward_F._Cline_and_Buster_Keaton,_1922).webm",
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/2/23/Cops_%28Edward_F._Cline_and_Buster_Keaton%2C_1922%29.webm",
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/23/Cops_%28Edward_F._Cline_and_Buster_Keaton%2C_1922%29.webm/Cops_%28Edward_F._Cline_and_Buster_Keaton%2C_1922%29.webm.240p.vp9.webm",
-    "start": 134.05,
+    "start": 134.342,
     "end": 137.9,
     "cropFrac": [
       0.4,
@@ -205,12 +205,7 @@
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Sherlock_Jr._-_Buster_Keaton_%281924%29_HD_%28720p%29.ogv/Sherlock_Jr._-_Buster_Keaton_%281924%29_HD_%28720p%29.ogv.240p.vp9.webm",
     "start": 305.0,
     "end": 309.0,
-    "cropFrac": [
-      0.2,
-      0.05,
-      0.55,
-      0.7
-    ],
+    "cropFrac": null,
     "license": "Public domain (US, published 1924)",
     "why": "The signature Great Stone Face: says 'I have nothing to add' louder than any line."
   },
@@ -388,12 +383,7 @@
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Sherlock_Jr._-_Buster_Keaton_%281924%29_HD_%28720p%29.ogv/Sherlock_Jr._-_Buster_Keaton_%281924%29_HD_%28720p%29.ogv.240p.vp9.webm",
     "start": 2641.0,
     "end": 2644.75,
-    "cropFrac": [
-      0.34,
-      0.06,
-      0.45,
-      0.72
-    ],
+    "cropFrac": null,
     "license": "Public domain (US, published 1924)",
     "why": "The famous closing head-scratch: universal 'wait, how does that work?'."
   },
@@ -470,12 +460,7 @@
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/79/The_Champion%281915%29_Charlie_Chaplin.webm/The_Champion%281915%29_Charlie_Chaplin.webm.240p.vp9.webm",
     "start": 354.6,
     "end": 358.6,
-    "cropFrac": [
-      0.08,
-      0.0,
-      0.6,
-      0.8
-    ],
+    "cropFrac": null,
     "license": "Public domain (US, published 1915)",
     "why": "The face of someone who just found a loophole and knows it"
   },
@@ -686,32 +671,6 @@
     "cropFrac": null,
     "license": "Public domain (US, published 1915)",
     "why": "The silent 'oh no, what have I done' as he slowly turns to the lens"
-  },
-  {
-    "id": "bank-shy-flirt",
-    "title": "Chaplin fidgets bashfully and rubs his chin beside Edna at her typewriter, neither sure what to say",
-    "reactions": [
-      "awkward",
-      "cringe"
-    ],
-    "tags": [
-      "shy",
-      "flirting",
-      "bashful",
-      "awkward",
-      "fidget",
-      "office",
-      "chaplin"
-    ],
-    "film": "The Bank (Charlie Chaplin, 1915)",
-    "filePage": "https://commons.wikimedia.org/wiki/File:The_Bank_(Charlie_Chaplin,_1915).webm",
-    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/1/11/The_Bank_%28Charlie_Chaplin%2C_1915%29.webm",
-    "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/11/The_Bank_%28Charlie_Chaplin%2C_1915%29.webm/The_Bank_%28Charlie_Chaplin%2C_1915%29.webm.240p.vp9.webm",
-    "start": 672.4,
-    "end": 676.4,
-    "cropFrac": null,
-    "license": "Public domain (US, published 1915)",
-    "why": "Two people, one painfully shy crush, zero words: textbook awkward"
   },
   {
     "id": "bank-sad-flowers-slump",
@@ -939,7 +898,7 @@
     "filePage": "https://commons.wikimedia.org/wiki/File:Safety_Last_(1923).webm",
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Safety_Last_%281923%29.webm",
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d0/Safety_Last_%281923%29.webm/Safety_Last_%281923%29.webm.240p.vp9.webm",
-    "start": 3317.4,
+    "start": 3317.483,
     "end": 3319.4,
     "cropFrac": [
       0.15,
@@ -994,7 +953,7 @@
     "filePage": "https://commons.wikimedia.org/wiki/File:Safety_Last_(1923).webm",
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Safety_Last_%281923%29.webm",
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d0/Safety_Last_%281923%29.webm/Safety_Last_%281923%29.webm.240p.vp9.webm",
-    "start": 3163.4,
+    "start": 3163.525,
     "end": 3165.4,
     "cropFrac": null,
     "license": "Public domain",
@@ -1070,7 +1029,7 @@
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/8/83/Never_Weaken_%281921%29.webm",
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/83/Never_Weaken_%281921%29.webm/Never_Weaken_%281921%29.webm.240p.vp9.webm",
     "start": 666.75,
-    "end": 668.4,
+    "end": 668.352,
     "cropFrac": null,
     "license": "Public domain",
     "why": "Grinning overconfidence is Lloyd's trademark; perfect right after 'how hard can it be?'."
@@ -1175,7 +1134,7 @@
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/8/83/Never_Weaken_%281921%29.webm",
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/83/Never_Weaken_%281921%29.webm/Never_Weaken_%281921%29.webm.240p.vp9.webm",
     "start": 1375.2,
-    "end": 1377.4,
+    "end": 1377.335,
     "cropFrac": null,
     "license": "Public domain",
     "why": "Instantly says 'I just realised how deep in this I am'."
@@ -1200,7 +1159,7 @@
     "filePage": "https://commons.wikimedia.org/wiki/File:Never_Weaken_(1921).webm",
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/8/83/Never_Weaken_%281921%29.webm",
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/83/Never_Weaken_%281921%29.webm/Never_Weaken_%281921%29.webm.240p.vp9.webm",
-    "start": 1554.4,
+    "start": 1554.634,
     "end": 1556.9,
     "cropFrac": null,
     "license": "Public domain",
@@ -1226,7 +1185,7 @@
     "filePage": "https://commons.wikimedia.org/wiki/File:I_Do_(1921).webm",
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cc/I_Do_%281921%29.webm",
     "scanFile": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cc/I_Do_%281921%29.webm/I_Do_%281921%29.webm.240p.vp9.webm",
-    "start": 1223.5,
+    "start": 1223.567,
     "end": 1227.0,
     "cropFrac": null,
     "license": "Public domain",
@@ -1352,7 +1311,7 @@
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Big_Business_%281929%29_-_16mm_-_Silent_-_UHD.webm",
     "scanFile": "Big_Business_(1929)_-_16mm_-_Silent_-_UHD.webm.240p.vp9.webm",
     "start": 648.6,
-    "end": 650.2,
+    "end": 650.1,
     "cropFrac": [
       0.25,
       0.0,
@@ -1492,7 +1451,7 @@
     "filePage": "https://commons.wikimedia.org/wiki/File:Nosferatu_(1922,_English_titles_1947).webm",
     "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Nosferatu_%281922%2C_English_titles_1947%29.webm",
     "scanFile": "Nosferatu_(1922,_English_titles_1947).webm.240p.vp9.webm",
-    "start": 1337.9,
+    "start": 1338.15,
     "end": 1341.2,
     "cropFrac": null,
     "license": "Public domain (1922 film; per Commons file page)",
@@ -1548,35 +1507,5 @@
     "cropFrac": null,
     "license": "Public domain (1922 film; per Commons file page)",
     "why": "Big theatrical silent-film fear; pairs perfectly after the Orlok rise or any scary reveal."
-  },
-  {
-    "id": "armistice-crowd-goes-wild",
-    "title": "A packed 1918 crowd waves hats and flags in wild celebration",
-    "reactions": [
-      "celebration",
-      "hype"
-    ],
-    "tags": [
-      "crowd cheering",
-      "celebration",
-      "waving flags",
-      "victory",
-      "party",
-      "newsreel"
-    ],
-    "film": "Armistice Day 1918 newsreel",
-    "filePage": "https://commons.wikimedia.org/wiki/File:Armistice_Day_1918_-_No_sound.webm",
-    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Armistice_Day_1918_-_No_sound.webm",
-    "scanFile": "Armistice_Day_1918_-_No_sound.webm.240p.vp9.webm",
-    "start": 35.0,
-    "end": 39.0,
-    "cropFrac": [
-      0.0,
-      0.12,
-      0.86,
-      0.88
-    ],
-    "license": "Public domain (1918 newsreel footage; per Commons file page)",
-    "why": "A sea of waving hats reads as 'the crowd goes wild'; the crop removes the AP logo bug in the top-right corner."
   }
 ]

@@ -129,10 +129,11 @@ function searchLibrary(o: SearchOptions): Clip[] {
         const shape = e.width > e.height * 1.1 ? "landscape" : e.height > e.width * 1.1 ? "portrait" : "square";
         if (shape === o.orientation) score += 0.25;
       }
-      return { e, score };
+      // A little jitter breaks ties, so the same reaction does not always give every user the same clip.
+      return { e, score, jitter: Math.random() };
     })
     .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || a.jitter - b.jitter)
     .slice(0, o.limit)
     .map((x) => strip(libraryToClip(x.e)));
 }

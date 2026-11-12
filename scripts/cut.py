@@ -67,15 +67,36 @@ def local_source(p):
     raise RuntimeError(f"Could not download {src}")
 
 
+def pillarbox(src, start, dur):
+    """Crop black bars at the left/right (4:3 films inside 16:9 files). Never touches top/bottom,
+    so dark scenes are not mistaken for letterboxing."""
+    import re
+    out = subprocess.run(["ffmpeg", "-ss", str(start), "-i", src, "-t", str(dur), "-vf", "cropdetect=limit=24:round=2:reset=0",
+                          "-f", "null", "-"], capture_output=True, text=True).stderr
+    m = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", out)
+    w, h = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height",
+                           "-of", "csv=p=0", src], capture_output=True, text=True).stdout.strip().split(",")[:2]
+    if not m:
+        return None
+    cw, _, cx, _ = map(int, m[-1])
+    if cw >= 0.92 * int(w) or cw < 0.5 * int(w):
+        return None
+    return f"crop={cw}:{h}:{cx}:0"
+
+
 def cut(p, force):
     mp4 = os.path.join(OUT, p["id"] + ".mp4")
     jpg = os.path.join(OUT, p["id"] + ".jpg")
     if os.path.exists(mp4) and os.path.exists(jpg) and not force:
         return
     start, end = p["start"], p["end"]
+    src = local_source(p)
     # Fast seek to a little before, then accurate seek: works over HTTP range requests.
     pre = max(0.0, start - 5)
     vf = "scale='min(960,iw)':-2:flags=lanczos,format=yuv420p"
+    bars = None if p.get("cropFrac") else pillarbox(src, start, end - start)
+    if bars:
+        vf = bars + "," + vf
     if p.get("cropFrac"):
         # [x, y, w, h] as fractions of the frame: tighten on a face for a punchier reaction.
         x, y, w, h = p["cropFrac"]
@@ -83,7 +104,7 @@ def cut(p, force):
     if p.get("speed"):
         vf = f"setpts=PTS/{p['speed']}," + vf
     subprocess.run(
-        ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(pre), "-i", local_source(p),
+        ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(pre), "-i", src,
          "-ss", str(start - pre), "-t", str(end - start), "-an", "-vf", vf,
          "-c:v", "libx264", "-preset", "slow", "-crf", "26", "-movflags", "+faststart", mp4],
         check=True)

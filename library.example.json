@@ -1,0 +1,18 @@
+{
+  "clips": [
+    {
+      "id": "slow-clap",
+      "title": "Slow clap",
+      "url": "https://cdn.example.com/clips/slow-clap.mp4",
+      "previewUrl": "https://cdn.example.com/clips/slow-clap.jpg",
+      "tags": ["clap", "applause", "sarcastic", "well done"],
+      "reactions": ["celebration", "side_eye"],
+      "durationSeconds": 2.4,
+      "width": 1920,
+      "height": 1080,
+      "hasAudio": true,
+      "license": "Shot by us",
+      "attribution": null
+    }
+  ]
+}

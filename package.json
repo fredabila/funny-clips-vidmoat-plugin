@@ -1,0 +1,37 @@
+{
+  "name": "funny-clips-vidmoat-plugin",
+  "version": "0.1.0",
+  "description": "Vidmoat plugin (MCP server): finds funny moments in a transcript and adds reaction clips, sound effects and meme text cards.",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fredabila/funny-clips-vidmoat-plugin.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fredabila/funny-clips-vidmoat-plugin/issues"
+  },
+  "homepage": "https://github.com/fredabila/funny-clips-vidmoat-plugin#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@resvg/resvg-js": "^2.6.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -50,12 +50,21 @@ def local_source(p):
             raise RuntimeError(f"No transcode for {title} and the original is {vi['size'] // 1_000_000} MB")
         src = vi["url"].split("?")[0]
     print("  downloading", title, "->", src.rsplit(".", 3)[-3:], flush=True)
-    for i in range(8):
-        r = subprocess.run(["curl", "-sSfL", "-A", UA, "-o", path + ".part", src])
-        if r.returncode == 0:
+    hdr = path + ".headers"
+    for i in range(10):
+        r = subprocess.run(["curl", "-sSL", "-A", UA, "-D", hdr, "-o", path + ".part", "-w", "%{http_code}", src],
+                           capture_output=True, text=True)
+        if r.stdout.strip() == "200":
             os.rename(path + ".part", path)
+            os.remove(hdr)
             return path
-        time.sleep(30 * (i + 1))
+        # Wikimedia answers 429 with Retry-After (often 600 s): wait exactly that long, never hammer.
+        wait = 60
+        for line in open(hdr, errors="ignore"):
+            if line.lower().startswith("retry-after:"):
+                wait = int(line.split(":", 1)[1].strip() or 60) + 10
+        print(f"  HTTP {r.stdout.strip()}, waiting {wait}s", flush=True)
+        time.sleep(wait)
     raise RuntimeError(f"Could not download {src}")
 
 
@@ -67,7 +76,7 @@ def cut(p, force):
     start, end = p["start"], p["end"]
     # Fast seek to a little before, then accurate seek: works over HTTP range requests.
     pre = max(0.0, start - 5)
-    vf = "scale='min(1280,iw)':-2:flags=lanczos,format=yuv420p"
+    vf = "scale='min(960,iw)':-2:flags=lanczos,format=yuv420p"
     if p.get("cropFrac"):
         # [x, y, w, h] as fractions of the frame: tighten on a face for a punchier reaction.
         x, y, w, h = p["cropFrac"]
@@ -77,7 +86,7 @@ def cut(p, force):
     subprocess.run(
         ["ffmpeg", "-y", "-loglevel", "error", "-ss", str(pre), "-i", local_source(p),
          "-ss", str(start - pre), "-t", str(end - start), "-an", "-vf", vf,
-         "-c:v", "libx264", "-preset", "slow", "-crf", "23", "-movflags", "+faststart", mp4],
+         "-c:v", "libx264", "-preset", "slow", "-crf", "26", "-movflags", "+faststart", mp4],
         check=True)
     mid = (end - start) * float(p.get("thumbAt", 0.6))
     subprocess.run(

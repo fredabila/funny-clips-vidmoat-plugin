@@ -6,6 +6,9 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { start } from "../src/server.js";
 import { setLibrary } from "../src/sources.js";
 import { findMoments } from "../src/reactions.js";
+import { existsSync as exists } from "node:fs";
+
+const noPack = !exists(new URL("../assets/clips.json", import.meta.url)) && "clip pack not built yet (python3 scripts/cut.py)";
 
 let base = "";
 let server: Awaited<ReturnType<typeof start>>;
@@ -165,5 +168,37 @@ test("PLUGIN_SECRET gates /mcp", async () => {
     assert.ok((await c.listTools()).tools.length);
   } finally {
     delete process.env.PLUGIN_SECRET;
+  }
+});
+
+test("the bundled clip pack is complete and served", { skip: noPack }, async () => {
+  const { readFileSync, existsSync } = await import("node:fs");
+  const pack = JSON.parse(readFileSync(new URL("../assets/clips.json", import.meta.url), "utf8")).clips;
+  assert.ok(pack.length >= 30, `only ${pack.length} clips`);
+  const { REACTION_IDS } = await import("../src/reactions.js");
+  for (const c of pack) {
+    assert.ok(existsSync(new URL(`../assets/${c.url}`, import.meta.url)), c.url);
+    assert.ok(existsSync(new URL(`../assets/${c.previewUrl}`, import.meta.url)), c.previewUrl);
+    assert.ok(c.durationSeconds >= 1.4 && c.durationSeconds <= 4.2, `${c.id} is ${c.durationSeconds}s`);
+    assert.ok(c.reactions.length && c.reactions.every((r: string) => REACTION_IDS.includes(r as any)), c.id);
+    assert.match(c.license, /Public domain in the US/);
+  }
+  const first = await realFetch(`${base}/media/${pack[0].url}`);
+  assert.equal(first.headers.get("content-type"), "video/mp4");
+  assert.equal((await realFetch(`${base}/media/clips/nope.mp4`)).status, 404);
+  assert.equal((await realFetch(`${base}/media/clips/..%2Fclips.json`)).status, 404);
+});
+
+test("with the real pack, reactions resolve to bundled clips with absolute URLs", { skip: noPack }, async () => {
+  setLibrary(null); // load assets/clips.json
+  delete process.env.GIPHY_API_KEY;
+  try {
+    const c = await client();
+    const r = await call(c, "get_reaction_clip", { reaction: "fail" });
+    assert.match(r.url, new RegExp(`^${base}/media/clips/.+\\.mp4$`));
+    assert.ok(r.reactions.includes("fail"));
+    assert.equal(r.hasAudio, false);
+  } finally {
+    process.env.GIPHY_API_KEY = "test";
   }
 });
